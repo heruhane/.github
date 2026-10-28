@@ -3,7 +3,7 @@ id: DEC-3
 title: "Every change reaches main through a pull request"
 date: 2026-10-28
 topics: process
-holding: "In every heruhane repository, every change reaches main through a pull request from a branch. Nobody commits directly to main, locally or on GitHub, including coding agents and small changes."
+holding: "In heruhane/.github and in every heruhane repository that adopts CONTRIBUTING.md by recording a decision, every change reaches main through a pull request from a branch. Nobody commits directly to main, locally or on GitHub, including coding agents and small changes. Once a repository adopts the rule, its main is protected on GitHub."
 amended_by:
 superseded_by:
 amends:
@@ -16,14 +16,17 @@ codified_in: CONTRIBUTING.md
 
 *Decided 28 October 2026.*
 
-**Decided.** In every heruhane repository, every change reaches `main` through a pull request from a branch. Nobody commits directly to `main`, locally or on GitHub. The rule has no exception for small changes, and it applies to coding agents as it does to people.
+**Decided.** In `heruhane/.github`, and in every heruhane repository that adopts [`CONTRIBUTING.md`](../CONTRIBUTING.md), every change reaches `main` through a pull request from a branch. Nobody commits directly to `main`, locally or on GitHub. The rule has no exception for small changes, and it applies to coding agents as it does to people.
 
-A commit made straight to `main` is published before anyone else has seen it, and before CI has run on it, so a mistake is found only after it has landed. A pull request puts the whole change in one place to be read before it is merged, runs CI on it first, and keeps the reason for the change with the change. The [tooling standard](../TOOLING.md) already relies on pull requests: it is changed only by pull request, it gives each merged change a new version, and it has CI run on every pull request. This decision makes the same rule apply to all work in every repository.
+A repository adopts the rule by recording a decision that says so, as it does for the tooling standard. Once that decision is recorded, an organisation owner adds branch protection to the repository's `main`, so that GitHub refuses a direct push. `heruhane/.github` has this protection already. Adoption comes before protection so that each repository's own workflow, such as a coding agent's habit of committing to `main`, is changed first, and protection does not interrupt work that has not yet moved to branches.
+
+A commit made straight to `main` is published before anyone else has seen it, and before CI has run on it, so a mistake is found only after it has landed. A pull request puts the whole change in one place to be read before it is merged, runs CI on it first, and keeps the reason for the change with the change. The [tooling standard](../TOOLING.md) already relies on pull requests: it is changed only by pull request, it gives each merged change a new version, and it has CI run on every pull request. This decision extends the same rule to all work in a repository that adopts it.
 
 The alternative was to allow direct commits for small changes such as typo fixes. It was rejected because "small" is a judgement each person makes differently, and a single rule is easier for people and coding agents to follow than a rule with a size limit.
 
 **Obligations.**
 
+- **Adopt the rule by recording a decision**, then ask an organisation owner to protect `main`.
 - **Work on a branch.** Every change is committed to a branch, never to `main`, and local `main` is kept equal to `origin/main`.
 - **Merge through a pull request**, only once its checks pass, as [`CONTRIBUTING.md`](../CONTRIBUTING.md) describes.
 - **Keep the rule in a repository's own guide.** A repository that adds its own `CONTRIBUTING.md`, which replaces this organisation's guide on GitHub, states this rule in it.
