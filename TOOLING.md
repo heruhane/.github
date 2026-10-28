@@ -4,7 +4,7 @@
 
 This standard names one tool for each job in each language, and one way of running it, for every heruhane repository. A project that mixes Python and TypeScript can easily end up with two toolchains that work differently, pin versions in different places and run their checks at different times. Using the same tools in the same way everywhere means that someone who knows one heruhane repository can work in any of them, and that a fix found in one repository can be copied to the others.
 
-The reasons behind individual tool choices are recorded in [`decisions/`](decisions/), so that this document can say only what a repository must do.
+The reasons behind individual tool choices are recorded in [`decisions/`](decisions/), one file per decision, so that this document can say only what a repository must do.
 
 ## Scope
 
@@ -26,7 +26,7 @@ A decision can be kept in whatever form the repository already uses for its deci
 - for an exception, the rule it departs from and its end condition or review date (see [Exceptions](#exceptions));
 - for a change to an earlier decision, which decision it replaces.
 
-Changes to the standard are made by pull request to this document. Each merged change gives it a new version: the date the change is merged, written as `YYYY-MM-DD`. When more than one change is merged on the same day, the second adds the suffix `.2`, the third `.3`, and so on, as in `2026-10-28.2`. The pull request updates the version line, adds an entry to the version history, and adds a record to `decisions/` when it chooses or replaces a tool.
+Changes to the standard are made by pull request to this document. Each merged change gives it a new version: the date the change is merged, written as `YYYY-MM-DD`. When more than one change is merged on the same day, the second adds the suffix `.2`, the third `.3`, and so on, as in `2026-10-28.2`. The pull request updates the version line, adds an entry to the version history, and adds a decision to `decisions/` when it chooses or replaces a tool. A decision is a file named `DEC-N.md`, numbered in order, in the shape of [DEC-1](decisions/DEC-1.md). It is never rewritten afterwards: a later decision that changes it names it in `amends` or `supersedes`, and the earlier file gains the matching `amended_by` or `superseded_by`.
 
 ## Principles
 
@@ -62,7 +62,7 @@ Every repository uses these tools for the languages it contains.
 | Packages and runtimes | pnpm, pinned in the `packageManager` field of `package.json`. Node.js pinned through `devEngines.runtime`, so `pnpm-lock.yaml` records the exact runtime. | uv. Python pinned in `.python-version`. |
 | Lint | ESLint with typescript-eslint, plus eslint-plugin-astro for Astro code | Ruff |
 | Format | Prettier, plus prettier-plugin-astro for Astro code | Ruff's formatter |
-| Type checking | `astro check` for Astro projects, `tsc --noEmit` otherwise, with the strictest available preset | Pyrefly with the `strict` preset, installed through uv ([decision 0001](decisions/0001-pyrefly-replaces-pyright.md)) |
+| Type checking | `astro check` for Astro projects, `tsc --noEmit` otherwise, with the strictest available preset | Pyrefly with the `strict` preset, installed through uv ([DEC-1](decisions/DEC-1.md)) |
 | Unit tests and coverage | Vitest with `@vitest/coverage-v8` | pytest with coverage.py |
 | Browser tests | Playwright, for any repository that builds a site | n/a |
 | Vulnerability audit | `pnpm audit` | pip-audit |
@@ -155,6 +155,6 @@ These newer tools could replace or join their category in a later version of the
 
 ## Version history
 
-- **2026-10-28.3.** Split the principles into criteria for choosing a tool, each with a test, and principles for running tools; moved the Pyrefly rationale to [`decisions/`](decisions/). Added a scope section covering repositories of every kind, rules for moving to a newer version, and what a decision record contains. Grouped the rules, and added [Supply chain](#supply-chain) rules: actions pinned to a commit SHA, least-privilege workflow permissions, a minimum release age for pnpm and a matching Dependabot cooldown. Required runtime versions to be kept in step, rule sets to be spelled out, file-fixing hooks to be kept off prose, and coverage floors only to rise. Changed updates from monthly to at least monthly. Added ShellCheck as a conditional tool, a list of jobs not yet covered, and a review process for the tools to watch. Allowed lasting exceptions with a yearly review.
+- **2026-10-28.3.** Split the principles into criteria for choosing a tool, each with a test, and principles for running tools; moved the Pyrefly rationale to [DEC-1](decisions/DEC-1.md), the first file in [`decisions/`](decisions/). Added a scope section covering repositories of every kind, rules for moving to a newer version, and what a decision record contains. Grouped the rules, and added [Supply chain](#supply-chain) rules: actions pinned to a commit SHA, least-privilege workflow permissions, a minimum release age for pnpm and a matching Dependabot cooldown. Required runtime versions to be kept in step, rule sets to be spelled out, file-fixing hooks to be kept off prose, and coverage floors only to rise. Changed updates from monthly to at least monthly. Added ShellCheck as a conditional tool, a list of jobs not yet covered, and a review process for the tools to watch. Allowed lasting exceptions with a yearly review.
 - **2026-10-28.2.** Made Pyrefly the standard Python type checker, in place of Pyright, and replaced version numbers with the merge date.
 - **Version 1**, 28 October 2026. First version.
