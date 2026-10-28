@@ -4,6 +4,8 @@
 
 This standard names one tool for each job in each language, and one way of running it, for every heruhane repository. A project that mixes Python and TypeScript can easily end up with two toolchains that work differently, pin versions in different places and run their checks at different times. Using the same tools in the same way everywhere means that someone who knows one heruhane repository can work in any of them, and that a fix found in one repository can be copied to the others.
 
+The reasons behind individual tool choices are recorded in [`decisions/`](decisions/), so that this document can say only what a repository must do.
+
 ## Scope
 
 heruhane repositories come in a few kinds: TypeScript or Astro sites, Python tools and data projects, projects that combine the two, and repositories that are mostly writing, such as books and course material, with a build system around them. The standard applies to each as follows:
@@ -16,17 +18,40 @@ heruhane repositories come in a few kinds: TypeScript or Astro sites, Python too
 
 A repository adopts the standard by recording a decision that says so, naming the version it follows and listing any exceptions (see [Exceptions](#exceptions)). To move to a newer version, it reads the [Version history](#version-history) for the changes since its current version and records the move in a new decision, together with anything it has not yet done. A repository does not have to adopt a new version on the day it is published, but it checks for one at least once a quarter.
 
-Changes to the standard are made by pull request to this document. Each merged change gives it a new version: the date the change is merged, written as `YYYY-MM-DD`. When more than one change is merged on the same day, the second adds the suffix `.2`, the third `.3`, and so on, as in `2026-10-28.2`. The pull request updates the version line and adds an entry to the version history.
+A decision can be kept in whatever form the repository already uses for its decisions, such as a file in a `docs/decisions/` folder. Each one gives at least:
+
+- a title and the date it was made;
+- what was decided, in one or two sentences;
+- the reason;
+- for an exception, the rule it departs from and its end condition or review date (see [Exceptions](#exceptions));
+- for a change to an earlier decision, which decision it replaces.
+
+Changes to the standard are made by pull request to this document. Each merged change gives it a new version: the date the change is merged, written as `YYYY-MM-DD`. When more than one change is merged on the same day, the second adds the suffix `.2`, the third `.3`, and so on, as in `2026-10-28.2`. The pull request updates the version line, adds an entry to the version history, and adds a record to `decisions/` when it chooses or replaces a tool.
 
 ## Principles
 
-The tools are chosen on five criteria:
+The principles come in two kinds. The first list says how a tool is chosen for the standard. The second says how the chosen tools are run, and the [Rules](#rules) carry it out.
 
-1. **Open source.**
-2. **Mature and stable.** When a newer tool is faster but less proven, the proven tool wins until the newer one has been stable for a while.
-3. **Fast enough** to run on every commit.
-4. **Widely used with a clear future**, ideally backed by a well-funded organisation.
-5. **One version pin per tool, in a lockfile wherever one can hold it**, so that development containers, contributors' machines, coding agents and CI all run the same version. When a tool can't live in a lockfile (uv, pnpm, Make, a hook fetched from another repository, a GitHub Action, a container base image), it still has exactly one pin, and the repository's documentation says where.
+### Choosing a tool
+
+A tool joins the standard only when it meets all six criteria. Each is meant to be checked, not judged by impression.
+
+1. **Openly licensed**, under a licence approved by the Open Source Initiative. If the project is abandoned, or its owner changes its licence, the last open release can still be used and forked.
+2. **Proven.** It has a stable release (1.0, or the project's stated equivalent) and at least a year of public releases, and its recent releases have not forced rework on their users. When a newer tool is faster but less proven, the proven tool stays until the newer one passes this test.
+3. **Maintained by more than one person**, with releases in the last six months, so that the project does not stop when one maintainer does, or depend on one company's continued interest. Backing by a company or foundation helps when it pays for this, but it is not a substitute for it.
+4. **Widely used**: at least a million downloads a month from its main package registry, or comparable evidence for a tool distributed another way, such as a single binary. Wide use means documentation, answers to questions, editor support, plugins, and coding agents that already know the tool. The figure applies to the tool, not to a wrapper that packages it, such as a Python wheel that ships a Go binary.
+5. **Fits the toolchain.** It installs through a lockfile the repository already has, behaves the same on Linux, macOS and CI, and needs no second language runtime just to run.
+6. **Does several jobs, where one tool can.** One tool that lints and formats is preferred over two that each do half, as long as it does both well. Every extra tool is one more thing to pin, update and learn, and a small organisation feels that cost in every repository.
+
+### Running tools
+
+1. **Reproducible.** A given commit gives the same results on any machine, for any person or coding agent, because every tool and runtime has exactly one version pin, in a lockfile wherever one can hold it. When a tool can't live in a lockfile (uv, pnpm, Make, a hook fetched from another repository, a GitHub Action, a container base image), it still has exactly one pin, and the repository's documentation says where.
+2. **Each check runs at the earliest stage its cost allows.** Fast checks run before each commit, slower ones in CI, and checks whose result can change without any change to the code, such as vulnerability audits, run on a schedule.
+3. **Strict, with exceptions written where they apply.** Checks are configured strictly. A finding is suppressed on its own line, with the reason, and a repository-wide departure is recorded as a decision.
+4. **One way to run everything.** Every check is a `make` target, and people, coding agents and CI all run the same targets, so none of them does something the others can't repeat.
+5. **Tools never rewrite authored content.** Prose belongs to its authors. Formatters and fixers work on code and configuration, never on writing.
+6. **Nothing new is trusted by default.** New releases wait before they are installed, workflows get only the permissions they need, and every dependency is pinned exactly.
+7. **Decisions are written down.** Adopting the standard, every exception, and every change to the standard are recorded where they can be found later, with their reasons.
 
 ## Core tools
 
@@ -37,7 +62,7 @@ Every repository uses these tools for the languages it contains.
 | Packages and runtimes | pnpm, pinned in the `packageManager` field of `package.json`. Node.js pinned through `devEngines.runtime`, so `pnpm-lock.yaml` records the exact runtime. | uv. Python pinned in `.python-version`. |
 | Lint | ESLint with typescript-eslint, plus eslint-plugin-astro for Astro code | Ruff |
 | Format | Prettier, plus prettier-plugin-astro for Astro code | Ruff's formatter |
-| Type checking | `astro check` for Astro projects, `tsc --noEmit` otherwise, with the strictest available preset | Pyrefly with the `strict` preset, installed through uv |
+| Type checking | `astro check` for Astro projects, `tsc --noEmit` otherwise, with the strictest available preset | Pyrefly with the `strict` preset, installed through uv ([decision 0001](decisions/0001-pyrefly-replaces-pyright.md)) |
 | Unit tests and coverage | Vitest with `@vitest/coverage-v8` | pytest with coverage.py |
 | Browser tests | Playwright, for any repository that builds a site | n/a |
 | Vulnerability audit | `pnpm audit` | pip-audit |
@@ -50,15 +75,6 @@ These apply whatever the language:
 | Git hooks | pre-commit, installed through uv, or through `uvx` with a pinned version in a repository with no Python |
 | Dependency updates | Dependabot |
 | CI workflow lint | actionlint |
-
-Pyrefly replaced Pyright as the Python type checker because it now meets the criteria better:
-
-- **Mature and stable.** Pyrefly reached a stable 1.0 in May 2026 after a public beta, and has had regular releases since. Its type checking is in daily use on large codebases, including Instagram, PyTorch and JAX.
-- **Fast.** It is written in Rust and checks a project in a fraction of the time Pyright takes, so it stays comfortably fast enough for the commit stage as a repository grows.
-- **Backed by a well-funded organisation.** Meta develops it in the open under the MIT licence, and it is widely used across the Python ecosystem.
-- **Simpler to install.** It ships as a platform wheel containing a single native binary, so it needs no Node.js runtime alongside it.
-
-ty, Astral's Rust-based checker, remains under watch until it has a stable release.
 
 ## Rules
 
@@ -93,7 +109,7 @@ ty, Astral's Rust-based checker, remains under watch until it has a stable relea
 - **Wait before installing a new release.** In `pnpm-workspace.yaml`, set `minimumReleaseAge` explicitly (1440 minutes, one day, or longer), so that a release that is hijacked and then pulled is never installed, and set `trustPolicy: no-downgrade`, so that a version published with weaker provenance than an earlier one is refused. Give Dependabot a `cooldown` at least as long, so that it doesn't propose a version pnpm will refuse.
 - **Allow install scripts by name.** pnpm runs only the install scripts listed in `pnpm-workspace.yaml`.
 - **Update at least monthly, and review every update.** Dependabot covers every ecosystem the repository uses, including GitHub Actions, any development container images and any Dockerfiles. Every update is reviewed and merged only once CI passes. An upgrade that changes what a linter or type checker reports is reviewed like any other change.
-- **Add a dependency only when it meets the criteria above.** Check that a new package is maintained, widely used and openly licensed before adding it, and say in the pull request what it is for.
+- **Add a dependency only when it is maintained, widely used and openly licensed**, judged as in [Choosing a tool](#choosing-a-tool), and say in the pull request what it is for.
 
 ## Conditional tools
 
@@ -107,6 +123,15 @@ A repository adopts these once it has the code they apply to:
 | pytest-xdist | The Python test suite is slow enough that running it in parallel helps |
 | ShellCheck, through the `shellcheck-py` wheel | The repository has shell scripts, such as a development container's setup script or a CI helper |
 
+## Not yet covered
+
+The standard names no tool yet for these. A repository that needs one chooses it against [Choosing a tool](#choosing-a-tool) and records the choice as a decision. When a second repository needs the same thing, the choice is proposed for this standard by pull request.
+
+- Linting Dockerfiles
+- Checking YAML beyond whether it parses
+- Linting or formatting Markdown, which must never reflow prose
+- Formatting shell scripts
+
 ## Exceptions
 
 A repository may differ from this standard only through a decision in its own decision record. The decision names the rule or tool it departs from, says why, and says when the exception ends:
@@ -118,16 +143,18 @@ When the same exception appears in more than one repository, it is a sign that t
 
 ## Tools to watch
 
-These newer tools are faster, but they don't yet meet the maturity criterion. Each could replace or join its category in a later version of the standard:
+These newer tools could replace or join their category in a later version of the standard. Each entry says what it is waiting for. The list is reviewed once a quarter: a tool that now meets every criterion in [Choosing a tool](#choosing-a-tool), and does its job at least as well as the current tool when tried on a heruhane repository, is proposed by pull request, and a tool that has stopped being developed is removed.
 
-- **ty** (Astral), for Python type checking
-- **Oxlint** and **Biome**, for TypeScript linting and formatting
-- **prek**, a faster drop-in replacement for pre-commit
-- **Renovate**, if Dependabot can't keep up with current pnpm releases
-- **zizmor**, for security checks of CI workflows
+| Tool | Would replace or add | Waiting for |
+|---|---|---|
+| ty (Astral) | Pyrefly, for Python type checking | A stable release, and the proven and widely used criteria |
+| Oxlint and Biome | ESLint and Prettier | Support for Astro files and for the rules heruhane repositories use |
+| prek | pre-commit | The proven and widely used criteria |
+| Renovate | Dependabot | Evidence that Dependabot cannot keep up with current pnpm releases |
+| zizmor | Adds security checks of CI workflows | A trial on heruhane workflows showing that its findings are worth acting on |
 
 ## Version history
 
-- **2026-10-28.3.** Added a scope section covering repositories of every kind, and rules for moving to a newer version. Split the rules into sections, and added [Supply chain](#supply-chain) rules: actions pinned to a commit SHA, least-privilege workflow permissions, a minimum release age for pnpm and a matching Dependabot cooldown. Required runtime versions to be kept in step, rule sets to be spelled out, file-fixing hooks to be kept off prose, and coverage floors only to rise. Changed updates from monthly to at least monthly. Added ShellCheck as a conditional tool. Allowed lasting exceptions with a yearly review.
+- **2026-10-28.3.** Split the principles into criteria for choosing a tool, each with a test, and principles for running tools; moved the Pyrefly rationale to [`decisions/`](decisions/). Added a scope section covering repositories of every kind, rules for moving to a newer version, and what a decision record contains. Grouped the rules, and added [Supply chain](#supply-chain) rules: actions pinned to a commit SHA, least-privilege workflow permissions, a minimum release age for pnpm and a matching Dependabot cooldown. Required runtime versions to be kept in step, rule sets to be spelled out, file-fixing hooks to be kept off prose, and coverage floors only to rise. Changed updates from monthly to at least monthly. Added ShellCheck as a conditional tool, a list of jobs not yet covered, and a review process for the tools to watch. Allowed lasting exceptions with a yearly review.
 - **2026-10-28.2.** Made Pyrefly the standard Python type checker, in place of Pyright, and replaced version numbers with the merge date.
 - **Version 1**, 28 October 2026. First version.
