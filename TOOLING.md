@@ -37,20 +37,20 @@ The principles come in two kinds. The first list says how a tool is chosen for t
 A tool joins the standard only when it meets all six criteria. Each is meant to be checked, not judged by impression.
 
 1. **Openly licensed**, under a licence approved by the Open Source Initiative. If the project is abandoned, or its owner changes its licence, the last open release can still be used and forked.
-2. **Proven.** It has a stable release (1.0, or the project's stated equivalent) and at least a year of public releases, and its recent releases have not forced rework on their users. When a newer tool is faster but less proven, the proven tool stays until the newer one passes this test.
-3. **Maintained by more than one person**, with releases in the last six months, so that the project does not stop when one maintainer does, or depend on one company's continued interest. Backing by a company or foundation helps when it pays for this, but it is not a substitute for it.
+2. **Proven.** It has either a stable release (1.0, or the project's stated equivalent) and at least a year of public releases, or at least three years of releases without breaking changes for its users. Its recent releases have not forced rework on their users. When a newer tool is faster but less proven, the proven tool stays until the newer one passes this test.
+3. **Maintained, in proportion to the cost of replacing it.** It has had commits or answered issues in the last six months; a finished tool may release rarely. A tool that would be expensive to replace, such as a package manager, a type checker, a test runner or a formatter, is maintained by more than one person, so that it does not stop when one maintainer does, or depend on one company's continued interest. A small single-purpose tool may have one main maintainer, as long as an alternative or a workable fork exists if that maintainer stops, as prek is for pre-commit. Backing by a company or foundation helps when it pays for maintenance, but it is not a substitute for it.
 4. **Widely used**: at least a million downloads a month from its main package registry, or comparable evidence for a tool distributed another way, such as a single binary. Wide use means documentation, answers to questions, editor support, plugins, and coding agents that already know the tool. The figure applies to the tool, not to a wrapper that packages it, such as a Python wheel that ships a Go binary.
 5. **Fits the toolchain.** It installs through a lockfile the repository already has, behaves the same on Linux, macOS and CI, and needs no second language runtime just to run.
 6. **Does several jobs, where one tool can.** One tool that lints and formats is preferred over two that each do half, as long as it does both well. Every extra tool is one more thing to pin, update and learn, and a small organisation feels that cost in every repository.
 
 ### Running tools
 
-1. **Reproducible.** A given commit gives the same results on any machine, for any person or coding agent, because every tool and runtime has exactly one version pin, in a lockfile wherever one can hold it. When a tool can't live in a lockfile (uv, pnpm, Make, a hook fetched from another repository, a GitHub Action, a container base image), it still has exactly one pin, and the repository's documentation says where.
+1. **Reproducible.** A given commit gives the same results on any machine, for any person or coding agent, because every tool and runtime has exactly one version pin, in a lockfile wherever one can hold it. When a tool can't live in a lockfile (uv, pnpm, Make, pre-commit run through `uvx` in a repository with no Python, a hook fetched from another repository, a GitHub Action, a container base image), it still has exactly one pin, and the repository's documentation says where.
 2. **Each check runs at the earliest stage its cost allows.** Fast checks run before each commit, slower ones in CI, and checks whose result can change without any change to the code, such as vulnerability audits, run on a schedule.
 3. **Strict, with exceptions written where they apply.** Checks are configured strictly. A finding is suppressed on its own line, with the reason, and a repository-wide departure is recorded as a decision.
 4. **One way to run everything.** Every check is a `make` target, and people, coding agents and CI all run the same targets, so none of them does something the others can't repeat.
 5. **Tools never rewrite authored content.** Prose belongs to its authors. Formatters and fixers work on code and configuration, never on writing.
-6. **Nothing new is trusted by default.** New releases wait before they are installed, workflows get only the permissions they need, and every dependency is pinned exactly.
+6. **Nothing new is trusted by default.** New releases wait before they are installed, workflows get only the permissions they need, and every dependency is pinned exactly by a lockfile or, where none can hold it, by its one pin.
 7. **Decisions are written down.** Adopting the standard, every exception, and every change to the standard are recorded where they can be found later, with their reasons.
 
 ## Core tools
@@ -103,7 +103,7 @@ These apply whatever the language:
 
 ### Supply chain
 
-- **Pin GitHub Actions to a full commit SHA**, with the version in a comment after it, as in `uses: actions/checkout@<sha> # v5.0.0`. A tag can be moved to different code; a SHA cannot. Dependabot updates the SHA and the comment together.
+- **Pin GitHub Actions to a full commit SHA**, with the version in a comment after it, as in `uses: actions/checkout@<sha> # vX.Y.Z`. A tag can be moved to different code; a SHA cannot. Dependabot updates the SHA and the comment together.
 - **Give workflows only the permissions they need.** Set `permissions: contents: read` at the top of every workflow and grant more to a single job only when it needs it. Check out with `persist-credentials: false` unless a later step pushes.
 - **Lint the CI workflows.** actionlint checks `.github/workflows/` in the commit stage and in CI. Pin it in `uv.lock` through the `actionlint-py` wheel, once that wheel has been checked like any other new dependency.
 - **Wait before installing a new release.** In `pnpm-workspace.yaml`, set `minimumReleaseAge` explicitly (1440 minutes, one day, or longer), so that a release that is hijacked and then pulled is never installed, and set `trustPolicy: no-downgrade`, so that a version published with weaker provenance than an earlier one is refused. Give Dependabot a `cooldown` at least as long, so that it doesn't propose a version pnpm will refuse.
@@ -121,7 +121,7 @@ A repository adopts these once it has the code they apply to:
 | Hypothesis | Python code processes text or other open-ended input, such as parsing, counting, rewriting links or resolving references |
 | `@axe-core/playwright` | The repository builds a site with Playwright tests. Add accessibility checks to those tests. |
 | pytest-xdist | The Python test suite is slow enough that running it in parallel helps |
-| ShellCheck, through the `shellcheck-py` wheel | The repository has shell scripts, such as a development container's setup script or a CI helper |
+| ShellCheck, through the `shellcheck-py` wheel ([DEC-2](decisions/DEC-2.md)) | The repository has shell scripts, such as a development container's setup script or a CI helper |
 
 ## Not yet covered
 
@@ -155,6 +155,6 @@ These newer tools could replace or join their category in a later version of the
 
 ## Version history
 
-- **2026-10-28.3.** Split the principles into criteria for choosing a tool, each with a test, and principles for running tools; moved the Pyrefly rationale to [DEC-1](decisions/DEC-1.md), the first file in [`decisions/`](decisions/). Added a scope section covering repositories of every kind, rules for moving to a newer version, and what a decision record contains. Grouped the rules, and added [Supply chain](#supply-chain) rules: actions pinned to a commit SHA, least-privilege workflow permissions, a minimum release age for pnpm and a matching Dependabot cooldown. Required runtime versions to be kept in step, rule sets to be spelled out, file-fixing hooks to be kept off prose, and coverage floors only to rise. Changed updates from monthly to at least monthly. Added ShellCheck as a conditional tool, a list of jobs not yet covered, and a review process for the tools to watch. Allowed lasting exceptions with a yearly review.
+- **2026-10-28.3.** Split the principles into criteria for choosing a tool, each with a test, and principles for running tools, with the maintenance a tool needs scaled to the cost of replacing it; moved the Pyrefly rationale to [DEC-1](decisions/DEC-1.md), the first file in [`decisions/`](decisions/). Added a scope section covering repositories of every kind, rules for moving to a newer version, and what a decision record contains. Grouped the rules, and added [Supply chain](#supply-chain) rules: actions pinned to a commit SHA, least-privilege workflow permissions, a minimum release age for pnpm and a matching Dependabot cooldown. Required runtime versions to be kept in step, rule sets to be spelled out, file-fixing hooks to be kept off prose, and coverage floors only to rise. Changed updates from monthly to at least monthly. Added ShellCheck as a conditional tool ([DEC-2](decisions/DEC-2.md)), a list of jobs not yet covered, and a review process for the tools to watch. Allowed lasting exceptions with a yearly review.
 - **2026-10-28.2.** Made Pyrefly the standard Python type checker, in place of Pyright, and replaced version numbers with the merge date.
 - **Version 1**, 28 October 2026. First version.
