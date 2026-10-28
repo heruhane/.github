@@ -1,10 +1,10 @@
 # heruhane tooling standard
 
-*Version 1, 28 October 2026.*
+*Version 2026-10-28.*
 
 This standard names one tool for each job in each language, for every heruhane repository that contains Python or TypeScript code. A project that mixes the two languages can easily end up with two toolchains that work differently, pin versions in different places and run their checks at different times. Using the same tools in the same way everywhere means that someone who knows one heruhane repository can work in any of them.
 
-A repository adopts the standard by recording a decision that says so, naming the version it follows and listing any exceptions (see [Exceptions](#exceptions)). Changes to the standard are made by pull request to this document, and each change gives it a new version number.
+A repository adopts the standard by recording a decision that says so, naming the version it follows and listing any exceptions (see [Exceptions](#exceptions)). Changes to the standard are made by pull request to this document, and each change gives it a new version: the date the change is merged, written as `YYYY-MM-DD`.
 
 ## Principles
 
