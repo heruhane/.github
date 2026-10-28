@@ -1,3 +1,5 @@
 ## heruhane
 
-Public information and code standards for the heruhane org.
+heruhane is a Japanese language education organisation by Haruka and Henry.
+
+https://heruhane.org
