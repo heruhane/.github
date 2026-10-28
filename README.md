@@ -1,2 +1,2 @@
 # .github
-Public code standards for the heruhane org.
+Public information and code standards for the heruhane org.
