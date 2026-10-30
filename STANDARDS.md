@@ -1,10 +1,10 @@
 # heruhane software development standards
 
-*Version 2026-10-30.1.*
+*Version 2026-10-30.2.*
 
 The heruhane software development standards are a set of separate standards kept in one document, with one version. The [tooling standard](#tooling-standard) names one tool for each job in each language, and one way of running it. The others cover [testing](#testing-standard), [review](#review-standard), [coding agents](#coding-agent-standard), [Japanese language content](#japanese-language-content-standard), [sites](#site-standard), [accessibility](#accessibility-standard), [privacy](#privacy-standard), [security](#security-standard), [licensing](#licensing-standard), [releases](#release-standard), [documentation](#documentation-standard), [services](#service-standard) and [public repositories](#public-repository-standard). A repository adopts the ones it chooses (see [Adopting the standards](#adopting-the-standards)). heruhane is a small Japanese language education organisation, and coding agents do much of its programming, so the rules are written to be followed by people and agents alike.
 
-How a change reaches `main` is covered by [`CONTRIBUTING.md`](CONTRIBUTING.md). The reasons behind individual tool choices are recorded in [`decisions/`](decisions/), one file per decision, so that this document can say only what a repository must do.
+How a change reaches `main` is covered by [`CONTRIBUTING.md`](CONTRIBUTING.md). The reasons behind the tool choices and policies are recorded in [`decisions/`](decisions/), one file per decision, so that this document can say only what a repository must do.
 
 Rules are written as plain instructions and are required wherever they apply. "Should" marks a default: depart from it when you have a good reason, and say why in the pull request or commit message. Departing from anything else takes an [exception](#exceptions).
 
@@ -20,7 +20,7 @@ heruhane repositories come in a few kinds: TypeScript or Astro sites and apps, P
 
 ## Adopting the standards
 
-A repository adopts whichever of these standards it chooses, and does not have to adopt them all. It does so by recording a decision that names the standards it follows and the version of this document, and lists any exceptions (see [Exceptions](#exceptions)). The document has one version, which covers every standard in it, so a repository follows one version for everything it has adopted. To adopt another standard, it records a new decision. To move to a newer version, it reads the [Version history](#version-history) for the changes since its current version and records the move in a new decision, together with anything it has not yet done. A repository does not have to adopt a new version on the day it is published, but it checks for one at least once a quarter.
+A repository adopts whichever of these standards it chooses, and does not have to adopt them all. It does so by recording a decision that names the standards it follows and the version of this document, and lists any exceptions (see [Exceptions](#exceptions)). The document has one version, which covers every standard in it, so a repository follows one version for everything it has adopted ([DEC-4](decisions/DEC-4.md)). To adopt another standard, it records a new decision. To move to a newer version, it reads the [Version history](#version-history) for the changes since its current version and records the move in a new decision, together with anything it has not yet done. A repository does not have to adopt a new version on the day it is published, but it checks for one at least once a quarter.
 
 A decision can be kept in whatever form the repository already uses for its decisions, such as a file in a `docs/decisions/` folder. Each one gives at least:
 
@@ -51,7 +51,7 @@ The first list below says how a tool is chosen for this standard. The second say
 
 ### Choosing a tool
 
-A tool joins the tooling standard only when it meets all six criteria. Each is meant to be checked, not judged by impression.
+A tool joins the tooling standard only when it meets all six criteria, or through a decision that names the criterion it misses, says why, and says what ends the exception, as [DEC-8](decisions/DEC-8.md) does for Starlight. Each criterion is meant to be checked, not judged by impression.
 
 1. **Openly licensed**, under a licence approved by the Open Source Initiative. If the project is abandoned, or its owner changes its licence, the last open release can still be used and forked.
 2. **Proven.** It has either a stable release (1.0, or the project's stated equivalent) and at least a year of public releases, or at least three years of releases without breaking changes for its users. Its recent releases have not forced rework on their users. When a newer tool is faster but less proven, the proven tool stays until the newer one passes this test.
@@ -77,8 +77,8 @@ A repository that adopts this standard uses these tools for the languages it con
 
 | Job | TypeScript / Astro | Python |
 |---|---|---|
-| Packages and runtimes | pnpm, pinned in the `packageManager` field of `package.json`. Node.js pinned to an exact version in `.node-version`. | uv. Python pinned in `.python-version`. |
-| Sites | Astro, with static output | n/a |
+| Packages and runtimes | pnpm, pinned in the `packageManager` field of `package.json`. Node.js pinned to an exact version in `.node-version` ([DEC-9](decisions/DEC-9.md)). | uv. Python pinned in `.python-version`. |
+| Sites | Astro, with static output ([DEC-5](decisions/DEC-5.md)) | n/a |
 | Lint | ESLint with typescript-eslint, plus eslint-plugin-astro for Astro code | Ruff |
 | Format | Prettier, plus prettier-plugin-astro for Astro code | Ruff's formatter |
 | Type checking | `astro check` for Astro projects, `tsc --noEmit` otherwise, with the strictest available preset | Pyrefly with the `strict` preset, installed through uv and run as `uv run --locked pyrefly check` ([DEC-1](decisions/DEC-1.md)) |
@@ -94,9 +94,11 @@ These apply whatever the language:
 | Git hooks | pre-commit, installed through uv, or through `uvx` with a pinned version in a repository with no Python |
 | Dependency updates | Dependabot |
 | CI workflow lint | actionlint |
-| Site hosting | Cloudflare Workers static assets, deployed with Wrangler |
+| Site hosting | Cloudflare Workers static assets, deployed with Wrangler ([DEC-6](decisions/DEC-6.md)) |
 
 ### Rules
+
+The reasons for the rules added in version 2026-10-30.1 are in [DEC-10](decisions/DEC-10.md).
 
 #### Installing and pinning
 
@@ -144,8 +146,8 @@ A repository adopts these once it has the code they apply to:
 | `@axe-core/playwright` | The repository builds a site with Playwright tests. Add accessibility checks to those tests. |
 | pytest-xdist | The Python test suite is slow enough that running it in parallel helps |
 | ShellCheck, through the `shellcheck-py` wheel ([DEC-2](decisions/DEC-2.md)) | The repository has shell scripts, such as a development container's setup script or a CI helper |
-| Starlight | The project publishes documentation or a long reference work as a site |
-| React | Part of an Astro page needs more interaction than a few lines of browser JavaScript can give, as an island (see the [site standard](#site-standard)), or, built with Vite, the project is an app in which almost every screen is dynamic |
+| Starlight, as an exception to the proven criterion ([DEC-8](decisions/DEC-8.md)) | The project publishes documentation or a long reference work as a site |
+| React ([DEC-7](decisions/DEC-7.md)) | Part of an Astro page needs more interaction than a few lines of browser JavaScript can give, as an island (see the [site standard](#site-standard)), or, built with Vite, the project is an app in which almost every screen is dynamic |
 
 ### Not yet covered
 
@@ -176,6 +178,8 @@ These newer tools could replace or join their category in a later version of thi
 
 ## Testing standard
 
+The reasons are in [DEC-11](decisions/DEC-11.md).
+
 - **Test what changes.** New behaviour arrives with tests, and a bug fix arrives with a test that fails without the fix.
 - **Test at the cheapest level that proves the point.** Most logic gets fast unit tests. Integration tests use real dependencies, such as a real database or file format, rather than mocks where they can. Browser tests cover the journeys that matter most, and run against the built site, never the development server.
 - **Keep `make check` independent of the outside world.** Its tests do not reach the internet, and do not depend on the date or on the order they run in. A test of a deployed site is a separate target, outside `make check`.
@@ -183,11 +187,15 @@ These newer tools could replace or join their category in a later version of thi
 
 ## Review standard
 
+The reasons are in [DEC-12](decisions/DEC-12.md).
+
 - **Have every software change reviewed by someone other than its author** before it reaches `main`: another person, or a separate coding agent that is told the change's purpose and nothing about how it was written.
 - **Review what the change claims.** The reviewer checks that the change does what it says and has tests, that names and structure are clear to someone new to the code, that any new dependency is justified, that user-facing changes come with documentation and an accessibility check, and that no personal data is logged, stored or sent anywhere unexpected. A claim that something was tested is checked by running it.
 - **Have a person read the riskiest changes.** Security fixes, and changes to CI permissions, deployment, releases or the handling of secrets, should also be read by a person before they reach `main`.
 
 ## Coding agent standard
+
+The reasons are in [DEC-13](decisions/DEC-13.md).
 
 - **The same rules apply to coding agents.** The person who asks for a change is responsible for it, whoever wrote it.
 - **Name the agent.** Every commit an agent makes ends with a `Co-Authored-By:` trailer naming the agent and model, and anything an agent posts under a person's account says who wrote it.
@@ -195,7 +203,7 @@ These newer tools could replace or join their category in a later version of thi
 
 ## Japanese language content standard
 
-These rules apply to any repository that shows, teaches or processes Japanese.
+These rules apply to any repository that shows, teaches or processes Japanese. The reasons are in [DEC-14](decisions/DEC-14.md).
 
 - **Have a native speaker check the Japanese that learners read.** No automated check can tell a natural sentence from one nobody would say. A project names who has the final word on its language content, and records what has been checked. Content is not finished until it has been, and only a speaker's own judgement marks it as checked.
 - **Keep known answers for anything that scores, marks or explains Japanese.** A fixture set of questions and answers, checked by a language expert, runs in the tests, and a fixture changes only with that expert's agreement.
@@ -206,7 +214,7 @@ These rules apply to any repository that shows, teaches or processes Japanese.
 
 ## Site standard
 
-These rules apply to any repository that builds a website or web app. Those that name Astro features apply to sites built with it.
+These rules apply to any repository that builds a website or web app. Those that name Astro features apply to sites built with it. The reasons are in [DEC-15](decisions/DEC-15.md).
 
 - **Build static output**, and deploy it with Wrangler, with its settings in `wrangler.jsonc`. Keep the output portable to another static host. A server adapter needs a decision (see the [service standard](#service-standard)).
 - **Send no JavaScript unless a feature needs it.** Pages work with JavaScript turned off, and a feature that can't shows a sensible message. Use plain `<script>` tags for small behaviour such as toggles, and React islands for more, never a second UI framework. Choose the latest-loading directive that works: none, then `client:visible`, then `client:idle`, and `client:load` only at the top of a page, with the reason in the pull request.
@@ -221,7 +229,7 @@ These rules apply to any repository that builds a website or web app. Those that
 
 ## Accessibility standard
 
-These rules apply to every web interface.
+These rules apply to every web interface. The reasons are in [DEC-16](decisions/DEC-16.md).
 
 - **Meet WCAG 2.2 Level AA.** `@axe-core/playwright` checks the key pages in the browser tests, and a violation fails them.
 - **Check new interface features by hand** before release: with the keyboard only, with a screen reader (VoiceOver or NVDA), at 200% and 400% zoom, and with reduced motion turned on. Animation and view transitions respect `prefers-reduced-motion`.
@@ -231,6 +239,8 @@ These rules apply to every web interface.
 
 ## Privacy standard
 
+The reasons are in [DEC-17](decisions/DEC-17.md).
+
 - **Collect as little as possible.** Prefer software that runs on the user's device and keeps its data there.
 - **Don't track.** No third-party advertising or trackers, no profiling, no public learner profiles, and the most private option as the default setting. Usage analytics need a decision, are opt-in and anonymous, and are documented in the README. Distributed software sends no telemetry by default.
 - **Review before handling personal data.** Any feature that processes personal data, including a contact form or a third party that receives it, first gets a privacy review, recorded as a decision: what data, why, where it is stored, how long it is kept and who can access it. heruhane works from the UK, so UK GDPR applies.
@@ -239,6 +249,8 @@ These rules apply to every web interface.
 
 ## Security standard
 
+The reasons are in [DEC-18](decisions/DEC-18.md).
+
 - **Protect accounts.** Everyone with admin or publishing rights uses phishing-resistant two-factor authentication (a passkey or hardware key) on GitHub, Cloudflare, domain registrars and package registries.
 - **Keep two people able to recover everything.** At least two people have admin access to every repository, domain, hosting account and package. Recovery codes are kept in a shared password manager, and it is written down who to contact if the lead maintainer becomes unavailable.
 - **Keep secrets out of the repository.** Don't put them in code, issues or CI logs. Use GitHub environment secrets, and OIDC wherever a provider supports it. If a secret leaks, revoke it first and clean up afterwards. A secret pushed to a public repository has leaked, however quickly it is removed.
@@ -246,7 +258,7 @@ These rules apply to every web interface.
 
 ## Licensing standard
 
-These rules apply from the first time a repository uses third-party material, because where something came from is hard to work out later. A repository has its own licences by the time it [goes public](#public-repository-standard).
+These rules apply from the first time a repository uses third-party material, because where something came from is hard to work out later. A repository has its own licences by the time it [goes public](#public-repository-standard). The reasons are in [DEC-19](decisions/DEC-19.md).
 
 - **Code is MIT. Books and question banks are CC BY-SA 4.0.** A repository with both keeps them in `LICENSE` for the content and `LICENSE-CODE` for the code. Anything else, including lessons, needs a decision.
 - **Record third-party content.** Images, datasets and fonts have their source and licence recorded in `ATTRIBUTION.md` or its equivalent. Check the licence before using them: a share-alike dataset, such as JMdict, binds what is built from it.
@@ -254,12 +266,14 @@ These rules apply from the first time a repository uses third-party material, be
 
 ## Release standard
 
-These rules apply to any repository whose output other people use.
+These rules apply to any repository whose output other people use. The reasons are in [DEC-20](decisions/DEC-20.md).
 
 - **Version with Semantic Versioning 2.0.** Record in a decision what the public interface is: a site's URLs and anchors, a tool's commands or a package's API.
 - **Release as one unit.** A release is a version bump, an entry in `CHANGELOG.md` in the Keep a Changelog format, a `vX.Y.Z` tag, and a GitHub release with that entry as its notes.
 
 ## Documentation standard
+
+The reasons are in [DEC-21](decisions/DEC-21.md).
 
 - **Name repositories** in lowercase kebab-case.
 - **Give every repository a README** that says what it is, who it is for and how to start, with commands given by their `make` target.
@@ -270,6 +284,8 @@ These rules apply to any repository whose output other people use.
 
 ## Service standard
 
+The reasons are in [DEC-22](decisions/DEC-22.md).
+
 Prefer a library or a static site, which need nobody to keep them running. A project that needs a server or stores users' data first records a decision saying why, with a privacy review and a short threat model. Then:
 
 - **Run it safely.** Serve HTTPS only, with HSTS and a strict Content Security Policy. Follow the OWASP Top 10 and validate all input on the server. Prefer sign-in through an identity provider, and hash any passwords that can't be avoided with Argon2id.
@@ -278,6 +294,8 @@ Prefer a library or a static site, which need nobody to keep them running. A pro
 - **Handle incidents openly.** Fix the problem, tell the people affected, and publish a short blameless review within ten working days. Report a personal data breach to the ICO within 72 hours where the law requires it.
 
 ## Public repository standard
+
+The reasons are in [DEC-23](decisions/DEC-23.md).
 
 Before a repository becomes public:
 
@@ -298,6 +316,7 @@ When the same exception appears in more than one repository, it is a sign that t
 
 ## Version history
 
+- **2026-10-30.2.** Recorded the decisions behind version 2026-10-30.1, [DEC-4](decisions/DEC-4.md) to [DEC-23](decisions/DEC-23.md), and linked them from the standards. Allowed a tool to join the tooling standard through a decision that records an exception to a criterion, as [DEC-8](decisions/DEC-8.md) does for Starlight, which has no stable release. No other rule changed.
 - **2026-10-30.1.** Moved the tooling standard into this document, `STANDARDS.md`, as the first of a set of separate standards with one version between them. It keeps the rules of version 2026-10-28.3, apart from moving the Node.js pin from `devEngines.runtime` to `.node-version`. A repository can adopt any of the standards, and one that adopted an earlier version has adopted the tooling standard, and moves to this version in the usual way. Added standards for testing, review, coding agents, Japanese language content, sites, accessibility, privacy, security, licensing, releases, documentation, services and public repositories, with principles behind them all. The whole document is now reviewed once a quarter, a change that sets a policy adds a decision, and every version ends in a count that starts from 1 each day. In the tooling standard, added Astro and Cloudflare hosting to the core tools, and Starlight and React to the conditional tools. Added a principle that rules are enforced wherever possible, private-key detection in the standard file checks, a minimum Ruff rule set, type-aware linting, one line width, Python tool settings in `pyproject.toml`, a six-month window for moving to new runtimes, ES modules for TypeScript, a development container by default, telemetry turned off, a ten-minute target for CI, and no dependency for what the platform or a few lines of code already does. Added six jobs to the list not yet covered.
 - **2026-10-28.3.** Split the principles into criteria for choosing a tool, each with a test, and principles for running tools, with the maintenance a tool needs scaled to the cost of replacing it; moved the Pyrefly rationale to [DEC-1](decisions/DEC-1.md), the first file in [`decisions/`](decisions/). Added a scope section covering repositories of every kind, rules for moving to a newer version, and what a decision record contains. Grouped the rules, and added [Supply chain](#supply-chain) rules: actions pinned to a commit SHA, least-privilege workflow permissions, a minimum release age for pnpm and a matching Dependabot cooldown. Required runtime versions to be kept in step, rule sets to be spelled out, file-fixing hooks to be kept off prose, and coverage floors only to rise. Changed updates from monthly to at least monthly. Added ShellCheck as a conditional tool ([DEC-2](decisions/DEC-2.md)), a list of jobs not yet covered, and a review process for the tools to watch. Allowed lasting exceptions with a yearly review.
 - **2026-10-28.2.** Made Pyrefly the standard Python type checker, in place of Pyright, and replaced version numbers with the merge date.
