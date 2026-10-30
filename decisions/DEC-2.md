@@ -9,7 +9,7 @@ superseded_by:
 amends:
 supersedes:
 applies:
-codified_in: TOOLING.md, Conditional tools
+codified_in: STANDARDS.md, Conditional tools
 ---
 
 ## 2. ShellCheck checks shell scripts, installed through the shellcheck-py wheel
@@ -20,7 +20,7 @@ codified_in: TOOLING.md, Conditional tools
 
 Repositories often have shell scripts, for development containers and CI, and nothing in the standard checked them. Shell is easy to get subtly wrong: an unquoted variable that splits on spaces, or a failed command that the script carries on past. ShellCheck finds these mistakes.
 
-Measured against [Choosing a tool](../TOOLING.md#choosing-a-tool) on 28 October 2026:
+Measured against [Choosing a tool](../STANDARDS.md#choosing-a-tool) on 28 October 2026:
 
 1. **Openly licensed.** ShellCheck is GPL-3.0; the `shellcheck-py` wrapper is MIT. Running ShellCheck on a repository's scripts places no licence obligation on the scripts.
 2. **Proven.** Its repository dates from November 2012, and it has released steadily since without breaking changes for its users. It has never released a 1.0 (the latest release is 0.11.0, of 4 August 2025), so it passes on the three-year test, not the stable-release test.
