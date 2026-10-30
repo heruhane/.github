@@ -4,7 +4,7 @@ This guide applies to this repository, `heruhane/.github`, and to every heruhane
 
 ## Adopting this guide
 
-A repository adopts this guide by recording a decision that says so, in the same way it adopts the [tooling standard](TOOLING.md#adopting-the-standard). Once the decision is recorded, an organisation owner adds branch protection to the repository's `main` on GitHub, so that a change can reach it only through a pull request. `heruhane/.github` already has this protection.
+A repository adopts this guide by recording a decision that says so, in the same way it adopts the [software development standard](STANDARDS.md#adopting-the-standard). Once the decision is recorded, an organisation owner adds branch protection to the repository's `main` on GitHub, so that a change can reach it only through a pull request. `heruhane/.github` already has this protection.
 
 ## Every change reaches `main` through a pull request
 
@@ -29,4 +29,4 @@ Working through pull requests means that every change to `main` has been seen as
 
 ## Code standards
 
-Repositories with code follow the [heruhane tooling standard](TOOLING.md), which names the tools each repository uses and how it runs them.
+Repositories with code follow the [heruhane software development standard](STANDARDS.md), which names the tools each repository uses and how it runs them.

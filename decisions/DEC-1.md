@@ -9,7 +9,7 @@ superseded_by:
 amends:
 supersedes:
 applies:
-codified_in: TOOLING.md, Core tools
+codified_in: STANDARDS.md, Core tools
 ---
 
 ## 1. Pyrefly replaces Pyright as the Python type checker
